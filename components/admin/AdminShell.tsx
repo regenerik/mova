@@ -34,12 +34,13 @@ const nav = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const normalizedPathname = normalizePathname(pathname);
   const router = useRouter();
   const { session, loading, logout } = useAuth();
   const { data, error, sectionAlerts, clearSectionAlert } = useData();
   const [open, setOpen] = useState(false);
   const counts = useMemo(() => countsBySection(data.services), [data.services]);
-  const isLogin = pathname === "/admin/login";
+  const isLogin = normalizedPathname === "/admin/login";
 
   useEffect(() => {
     if (!loading && !session && !isLogin) router.replace("/admin/login");
@@ -75,7 +76,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <nav className="side-nav">
           {nav.map((item) => {
             const Icon = item.icon;
-            const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+            const active = normalizedPathname === item.href || (item.href !== "/admin" && normalizedPathname.startsWith(item.href));
             const count = "section" in item ? counts[item.section] : null;
             const hasAlert = "section" in item && Boolean(sectionAlerts[item.section]);
             return (
@@ -110,4 +111,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </main>
     </div>
   );
+}
+
+function normalizePathname(pathname: string): string {
+  if (pathname.length > 1 && pathname.endsWith("/")) return pathname.slice(0, -1);
+  return pathname;
 }

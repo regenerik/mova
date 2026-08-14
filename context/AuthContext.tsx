@@ -21,25 +21,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      setLoading(false);
-      return;
-    }
-    const saved = JSON.parse(raw) as Session;
-    if (String(saved.token || "").split(".").length !== 3) {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        setLoading(false);
+        return;
+      }
+      const saved = JSON.parse(raw) as Session;
+      if (String(saved.token || "").split(".").length !== 3) {
+        window.localStorage.removeItem(STORAGE_KEY);
+        setLoading(false);
+        return;
+      }
+      const expiresAt = saved.expiresAt ? new Date(saved.expiresAt).getTime() : 0;
+      if (!expiresAt || expiresAt > Date.now()) {
+        setSession(saved);
+        setLoading(false);
+        return;
+      }
       window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } finally {
       setLoading(false);
-      return;
     }
-    const expiresAt = saved.expiresAt ? new Date(saved.expiresAt).getTime() : 0;
-    if (!expiresAt || expiresAt > Date.now()) {
-      setSession(saved);
-      setLoading(false);
-      return;
-    }
-    window.localStorage.removeItem(STORAGE_KEY);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
