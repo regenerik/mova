@@ -510,8 +510,8 @@ export function ServiceFormView({ serviceId }: { serviceId?: string } = {}) {
               <button className="btn" type="button" onClick={() => setTransportModal(true)}><Plus size={16} /></button>
             </div>
           </Field>
-          <Field label="Inicio"><input className="input" type="datetime-local" value={dateTimeInput(form.startAt)} onChange={(e) => setForm({ ...form, startAt: isoDateTime(e.target.value) })} /></Field>
-          <Field label="Finalizacion estimada"><input className="input" type="datetime-local" value={dateTimeInput(form.estimatedEndAt)} onChange={(e) => setForm({ ...form, estimatedEndAt: isoDateTime(e.target.value) })} /></Field>
+          <DateTimeField label="Inicio" value={form.startAt} onChange={(value) => setForm({ ...form, startAt: value })} />
+          <DateTimeField label="Finalizacion estimada" value={form.estimatedEndAt} onChange={(value) => setForm({ ...form, estimatedEndAt: value })} />
           <Field label="Origen"><input className="input" value={form.origin || ""} onChange={(e) => setForm({ ...form, origin: e.target.value })} /></Field>
           <Field label="Destino"><input className="input" value={form.destination || ""} onChange={(e) => setForm({ ...form, destination: e.target.value })} /></Field>
           <Field label="Aclaraciones origen"><input className="input" value={form.originNotes || ""} onChange={(e) => setForm({ ...form, originNotes: e.target.value })} /></Field>
@@ -1361,6 +1361,28 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return <label className="field"><span>{label}</span>{children}</label>;
 }
 
+function DateTimeField({ label, value, onChange }: { label: string; value?: string; onChange: (value: string) => void }) {
+  return (
+    <Field label={label}>
+      <div className="datetime-pair">
+        <input
+          className="input"
+          type="date"
+          value={dateInput(value)}
+          onChange={(event) => onChange(mergeLocalDateTime(value, "date", event.target.value))}
+        />
+        <input
+          className="input"
+          type="time"
+          step="60"
+          value={timeInput(value)}
+          onChange={(event) => onChange(mergeLocalDateTime(value, "time", event.target.value))}
+        />
+      </div>
+    </Field>
+  );
+}
+
 function Metric({ label, value }: { label: string; value: string }) {
   return <div className="card metric"><small>{label}</small><strong>{value}</strong></div>;
 }
@@ -1493,19 +1515,39 @@ function toggleCurrency(current: Currency[], currency: Currency, checked: boolea
 }
 
 function dateInput(value?: string) {
-  return value ? value.slice(0, 10) : "";
+  if (hasTimezone(value)) return localDateParts(new Date(String(value))).date;
+  const match = String(value || "").match(/^(\d{4}-\d{2}-\d{2})/);
+  return match?.[1] || "";
 }
 
-function dateTimeInput(value?: string) {
-  return value ? value.slice(0, 16) : "";
+function timeInput(value?: string) {
+  if (hasTimezone(value)) return localDateParts(new Date(String(value))).time;
+  const match = String(value || "").match(/T(\d{2}:\d{2})/);
+  return match?.[1] || "";
 }
 
 function isoDate(value: string) {
   return value ? new Date(`${value}T00:00:00`).toISOString() : "";
 }
 
-function isoDateTime(value: string) {
-  return value ? new Date(value).toISOString() : "";
+function mergeLocalDateTime(current: string | undefined, part: "date" | "time", value: string): string {
+  const date = part === "date" ? value : dateInput(current) || new Date().toISOString().slice(0, 10);
+  const time = part === "time" ? value : timeInput(current) || "00:00";
+  if (!date) return "";
+  return `${date}T${time || "00:00"}:00`;
+}
+
+function hasTimezone(value?: string): boolean {
+  return /(?:Z|[+-]\d{2}:\d{2})$/.test(String(value || ""));
+}
+
+function localDateParts(date: Date): { date: string; time: string } {
+  if (Number.isNaN(date.getTime())) return { date: "", time: "" };
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return {
+    date: `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+    time: `${pad(date.getHours())}:${pad(date.getMinutes())}`
+  };
 }
 
 function toNum(value: string): number | null {
