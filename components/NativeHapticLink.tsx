@@ -7,15 +7,11 @@ type NativeHapticLinkProps = {
   children: ReactNode;
   className?: string;
   label?: string;
-  target?: "_blank" | "_self";
 };
 
-export function NativeHapticLink({ href, children, className, label, target = "_self" }: NativeHapticLinkProps) {
+export function NativeHapticLink({ href, children, className, label }: NativeHapticLinkProps) {
   const activate = () => {
-    if (target === "_blank") {
-      window.open(href, "_blank", "noopener,noreferrer");
-      return;
-    }
+    triggerStrongFallback();
     window.location.assign(href);
   };
 
@@ -38,4 +34,9 @@ export function NativeHapticLink({ href, children, className, label, target = "_
       />
     </span>
   );
+}
+
+function triggerStrongFallback() {
+  if (!("vibrate" in navigator)) return;
+  navigator.vibrate([85, 45, 85]);
 }

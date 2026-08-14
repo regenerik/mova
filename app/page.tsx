@@ -66,7 +66,7 @@ export default function LandingPage() {
         <nav className="landing-nav-links" aria-label="Navegacion principal">
           <a href="#servicios">Servicios</a>
           <a href="#beneficios">Beneficios</a>
-          <NativeHapticLink href={contactHref} target="_blank" label="Contactar por WhatsApp">Contacto</NativeHapticLink>
+          <NativeHapticLink href={contactHref} label="Contactar por WhatsApp">Contacto</NativeHapticLink>
           <NativeHapticLink className="landing-admin-link" href="/admin/login" label="Acceso a consola">
             <UserRound size={19} />
           </NativeHapticLink>
@@ -94,11 +94,11 @@ export default function LandingPage() {
               con velocidad, precision y control comercial claro.
             </p>
             <div className="landing-actions">
-              <NativeHapticLink className="landing-btn primary" href={contactHref} target="_blank" label={contactLabel}>
+              <NativeHapticLink className="landing-btn primary" href={contactHref} label={contactLabel}>
                 {contactLabel}
                 <ArrowRight size={18} />
               </NativeHapticLink>
-              <NativeHapticLink className="landing-btn ghost" href={contactHref} target="_blank" label="Hablar por WhatsApp">
+              <NativeHapticLink className="landing-btn ghost" href={contactHref} label="Hablar por WhatsApp">
                 <MessageCircle size={18} />
                 Hablar por WhatsApp
               </NativeHapticLink>
@@ -187,7 +187,7 @@ export default function LandingPage() {
         </nav>
       </footer>
 
-      <NativeHapticLink className="landing-whatsapp-fab" href={contactHref} target="_blank" label="Contactar por WhatsApp">
+      <NativeHapticLink className="landing-whatsapp-fab" href={contactHref} label="Contactar por WhatsApp">
         <MessageCircle size={25} />
       </NativeHapticLink>
     </main>
