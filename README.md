@@ -10,7 +10,6 @@ npm run dev
 npm run typecheck
 npm run test
 npm run build
-npm start
 ```
 
 Variables publicas:
@@ -25,16 +24,16 @@ NEXT_PUBLIC_MOVA_CONTACT_LABEL=Solicitar presupuesto
 
 Si `NEXT_PUBLIC_APPS_SCRIPT_URL` no esta configurada, el frontend usa modo demo local con `localStorage` para poder navegar y probar UI. Produccion debe usar Apps Script y Google Sheets.
 
-## Deploy en Render
+## Deploy en Render Static Site
 
-La app se despliega como **Web Service Node**, no como Static Site, para que Next ejecute `next start`.
+La app se despliega como **Static Site**. El frontend queda exportado en `out/` y se comunica directamente con Apps Script.
 
 Configuracion recomendada:
 
-- Runtime: `Node`
-- Branch: `master` o la rama que se pushee a GitHub
+- Type: `Static Site`
+- Branch: `main`
 - Build Command: `npm ci && npm run build`
-- Start Command: `npm start`
+- Publish Directory: `out`
 - Node version: Render toma `.node-version`
 
 Variables de entorno en Render:

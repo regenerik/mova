@@ -43,7 +43,7 @@ import {
   Undo2
 } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 
 const sectionLabels: Record<CollectionSection, string> = {
@@ -53,6 +53,17 @@ const sectionLabels: Record<CollectionSection, string> = {
   completed: "Servicios Finalizados",
   cancelled: "Servicios Cancelados"
 };
+
+export function AdminRouteView() {
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view");
+  const id = searchParams.get("id") || undefined;
+  if (view === "service") return <ServiceDetailView serviceId={id} />;
+  if (view === "service-edit") return <ServiceFormView serviceId={id} />;
+  if (view === "client") return <EntityDetailView kind="client" entityId={id} />;
+  if (view === "transport") return <EntityDetailView kind="transport" entityId={id} />;
+  return <ServicesView section="active" />;
+}
 
 const noteColors = ["amber", "moss", "rose", "stone"] as const;
 const cancellationOptions: Array<{ value: CancellationResponsibility; label: string }> = [
@@ -169,7 +180,7 @@ function ServiceRow({ service, client, transport, now }: { service: Service; cli
         </div>
         <small>{progress}%</small>
       </div>
-      <Link className="btn icon-btn" href={`/admin/servicios/${service.id}`} aria-label="Abrir detalle">
+      <Link className="btn icon-btn" href={serviceDetailHref(service.id)} aria-label="Abrir detalle">
         <ChevronRight size={18} />
       </Link>
     </article>
@@ -268,7 +279,7 @@ function ClientCard({
         </div>
       </div>
       <div className="card-actions">
-        <Link className="btn" href={`/admin/clientes/${client.id}`}>Detalle</Link>
+        <Link className="btn" href={entityDetailHref("client", client.id)}>Detalle</Link>
         <button className="btn" type="button" onClick={() => onEdit(client)}>Editar</button>
         <button className="btn" type="button" onClick={() => onHide(client.id, !client.hidden)}>
           {client.hidden ? <Undo2 size={16} /> : <EyeOff size={16} />}
@@ -373,7 +384,7 @@ function TransportCard({
       </div>
       </div>
       <div className="card-actions">
-        <Link className="btn" href={`/admin/transportes/${transport.id}`}>Detalle</Link>
+        <Link className="btn" href={entityDetailHref("transport", transport.id)}>Detalle</Link>
         <button className="btn" type="button" onClick={() => onEdit(transport)}>Editar</button>
         <button className="btn" type="button" onClick={() => onHide(transport.id, !transport.hidden)}>
           {transport.hidden ? <Undo2 size={16} /> : <EyeOff size={16} />}
@@ -384,11 +395,10 @@ function TransportCard({
   );
 }
 
-export function ServiceFormView() {
+export function ServiceFormView({ serviceId }: { serviceId?: string } = {}) {
   const { data, saveService, saveClient, saveTransport } = useData();
   const router = useRouter();
-  const params = useParams<{ id?: string }>();
-  const editing = params?.id ? data.services.find((service) => service.id === params.id) : undefined;
+  const editing = serviceId ? data.services.find((service) => service.id === serviceId) : undefined;
   const [clientModal, setClientModal] = useState(false);
   const [transportModal, setTransportModal] = useState(false);
   const [form, setForm] = useState<Partial<Service>>({ commissionPercent: 10, commissionCurrencies: ["ARS"], clientConfirmation: "pending", transportConfirmation: "pending", resultStatus: "open", chargeTiming: "after_delivery", chargeStatus: "pending" });
@@ -414,7 +424,7 @@ export function ServiceFormView() {
     setSaveError(null);
     try {
       const saved = await saveService(form);
-      if (editing) router.push(`/admin/servicios/${saved.id}`);
+      if (editing) router.push(serviceDetailHref(saved.id));
       else setCreatedService(saved);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "No se pudo guardar el servicio.");
@@ -541,11 +551,10 @@ export function ServiceFormView() {
   );
 }
 
-export function ServiceDetailView() {
-  const params = useParams<{ id: string }>();
+export function ServiceDetailView({ serviceId }: { serviceId?: string } = {}) {
   const router = useRouter();
   const { data, finalizeService, savePayment, deletePayment, saveNote, deleteNote } = useData();
-  const service = data.services.find((item) => item.id === params.id);
+  const service = data.services.find((item) => item.id === serviceId);
   const client = service ? data.clients.find((item) => item.id === service.clientId) : undefined;
   const transport = service ? data.transports.find((item) => item.id === service.transportId) : undefined;
   const payments = service ? data.payments.filter((payment) => payment.serviceId === service.id) : [];
@@ -591,7 +600,7 @@ export function ServiceDetailView() {
         </div>
         </div>
         <div className="toolbar">
-          <Link className="btn" href={`/admin/servicios/${service.id}/editar`}>Editar</Link>
+          <Link className="btn" href={serviceEditHref(service.id)}>Editar</Link>
           {service.resultStatus === "open" ? <button className="btn primary" type="button" onClick={() => setFinish("completed")}><Check size={18} /> Finalizar Servicio</button> : null}
           {service.resultStatus === "open" ? <button className="btn danger" type="button" onClick={() => setFinish("cancelled")}>
             <Trash2 size={18} />
@@ -707,13 +716,12 @@ export function ServiceDetailView() {
   );
 }
 
-export function EntityDetailView({ kind }: { kind: "client" | "transport" }) {
-  const params = useParams<{ id: string }>();
+export function EntityDetailView({ kind, entityId }: { kind: "client" | "transport"; entityId?: string }) {
   const router = useRouter();
   const { data, saveClient, saveTransport } = useData();
   const [editing, setEditing] = useState(false);
-  const client = kind === "client" ? data.clients.find((item) => item.id === params.id) : undefined;
-  const transport = kind === "transport" ? data.transports.find((item) => item.id === params.id) : undefined;
+  const client = kind === "client" ? data.clients.find((item) => item.id === entityId) : undefined;
+  const transport = kind === "transport" ? data.transports.find((item) => item.id === entityId) : undefined;
   const entity = client || transport;
   if (!entity) return <div className="empty">Registro no encontrado.</div>;
   const services = data.services.filter((service) => (kind === "client" ? service.clientId === entity.id : service.transportId === entity.id));
@@ -1363,6 +1371,18 @@ function priceAgreementSummary(service: Service): string {
     typeof service.finalPriceUsd === "number" && service.finalPriceUsd > 0 ? formatMoney(service.finalPriceUsd, "USD") : ""
   ].filter(Boolean);
   return prices.length ? prices.join(" + ") : "-";
+}
+
+function serviceDetailHref(id: string): string {
+  return `/admin?view=service&id=${encodeURIComponent(id)}`;
+}
+
+function serviceEditHref(id: string): string {
+  return `/admin?view=service-edit&id=${encodeURIComponent(id)}`;
+}
+
+function entityDetailHref(kind: "client" | "transport", id: string): string {
+  return `/admin?view=${kind}&id=${encodeURIComponent(id)}`;
 }
 
 function formatAmountInput(value: unknown): string {
