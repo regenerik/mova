@@ -1566,15 +1566,11 @@ function toggleCurrency(current: Currency[], currency: Currency, checked: boolea
 }
 
 function dateInput(value?: string) {
-  if (hasTimezone(value)) return localDateParts(new Date(String(value))).date;
-  const match = String(value || "").match(/^(\d{4}-\d{2}-\d{2})/);
-  return match?.[1] || "";
+  return dateTimeParts(value).date;
 }
 
 function timeInput(value?: string) {
-  if (hasTimezone(value)) return localDateParts(new Date(String(value))).time;
-  const match = String(value || "").match(/T(\d{2}:\d{2})/);
-  return match?.[1] || "";
+  return dateTimeParts(value).time;
 }
 
 function isoDate(value: string) {
@@ -1588,8 +1584,75 @@ function mergeLocalDateTime(current: string | undefined, part: "date" | "time", 
   return `${date}T${time || "00:00"}:00`;
 }
 
-function hasTimezone(value?: string): boolean {
-  return /(?:Z|[+-]\d{2}:\d{2})$/.test(String(value || ""));
+function dateTimeParts(value?: string): { date: string; time: string } {
+  const raw = String(value || "").trim();
+  if (!raw) return { date: "", time: "" };
+
+  const iso = raw.match(/^(\d{4}-\d{2}-\d{2})(?:T|\s)?(\d{2}:\d{2})?/);
+  if (iso) return { date: iso[1], time: iso[2] || "" };
+
+  const numeric = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,?\s+(\d{1,2}):(\d{2})(?::\d{2})?\s*(a\.?\s*m\.?|p\.?\s*m\.?|AM|PM)?)?/i);
+  if (numeric) {
+    const day = numeric[1].padStart(2, "0");
+    const month = numeric[2].padStart(2, "0");
+    const hour = numeric[4] ? normalizeHour(numeric[4], numeric[6]) : "";
+    const minute = numeric[5] || "";
+    return { date: `${numeric[3]}-${month}-${day}`, time: hour && minute ? `${hour}:${minute}` : "" };
+  }
+
+  const namedMonth = raw.match(/^(\d{1,2})\s+([a-záéíóúñ.]+)\s+(\d{4})(?:,?\s+(\d{1,2}):(\d{2})(?::\d{2})?\s*(a\.?\s*m\.?|p\.?\s*m\.?|AM|PM)?)?/i);
+  if (namedMonth) {
+    const month = spanishMonthNumber(namedMonth[2]);
+    if (month) {
+      const day = namedMonth[1].padStart(2, "0");
+      const hour = namedMonth[4] ? normalizeHour(namedMonth[4], namedMonth[6]) : "";
+      const minute = namedMonth[5] || "";
+      return { date: `${namedMonth[3]}-${month}-${day}`, time: hour && minute ? `${hour}:${minute}` : "" };
+    }
+  }
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) return localDateParts(parsed);
+  return { date: "", time: "" };
+}
+
+function spanishMonthNumber(value: string): string {
+  const month = value.toLowerCase().replace(".", "");
+  const months: Record<string, string> = {
+    ene: "01",
+    enero: "01",
+    feb: "02",
+    febrero: "02",
+    mar: "03",
+    marzo: "03",
+    abr: "04",
+    abril: "04",
+    may: "05",
+    mayo: "05",
+    jun: "06",
+    junio: "06",
+    jul: "07",
+    julio: "07",
+    ago: "08",
+    agosto: "08",
+    sep: "09",
+    septiembre: "09",
+    oct: "10",
+    octubre: "10",
+    nov: "11",
+    noviembre: "11",
+    dic: "12",
+    diciembre: "12"
+  };
+  return months[month] || "";
+}
+
+function normalizeHour(hourValue: string, period?: string): string {
+  let hour = Number(hourValue);
+  const normalizedPeriod = String(period || "").toLowerCase();
+  if (normalizedPeriod.includes("p") && hour < 12) hour += 12;
+  if (normalizedPeriod.includes("a") && hour === 12) hour = 0;
+  return String(hour).padStart(2, "0");
 }
 
 function localDateParts(date: Date): { date: string; time: string } {

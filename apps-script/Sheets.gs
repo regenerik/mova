@@ -160,6 +160,7 @@ function movaRowToObject(sheetName, headers, row) {
   return headers.reduce(function(acc, header, index) {
     let value = row[index];
     if (value === "") value = null;
+    if (value instanceof Date) value = value.toISOString();
     if (jsonFields.indexOf(header) !== -1 && typeof value === "string" && value) value = JSON.parse(value);
     if (numberFields.indexOf(header) !== -1 && value !== null) value = Number(value);
     if (stringFields.indexOf(header) !== -1 && value !== null) value = String(value);
