@@ -461,13 +461,51 @@ textarea:disabled {
     transform 160ms ease;
 }
 
-.landing-nav-links a:hover {
+.landing-nav-links a:hover,
+.landing-nav-links .native-haptic-link:hover {
   color: #ffffff;
   transform: translateY(-1px);
 }
 
-.landing-nav-links a:nth-child(3) {
+.landing-nav-links a:nth-child(3),
+.landing-nav-links .native-haptic-link:nth-child(3) {
   color: #7dd3fc;
+}
+
+.native-haptic-link {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.native-haptic-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: inherit;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.native-haptic-switch {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  opacity: 0.001;
+  appearance: auto;
+  color-scheme: light dark;
+  cursor: pointer;
+}
+
+.native-haptic-link:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 3px;
 }
 
 .landing-admin-link {
@@ -609,16 +647,19 @@ textarea:disabled {
   backdrop-filter: blur(16px);
 }
 
-.landing-btn:hover {
+.landing-btn:hover,
+.landing-btn.native-haptic-link:hover {
   transform: translateY(-2px);
 }
 
-.landing-btn.primary:hover {
+.landing-btn.primary:hover,
+.landing-btn.primary.native-haptic-link:hover {
   background: #0284c7;
   box-shadow: 0 0 38px rgba(14, 165, 233, 0.36);
 }
 
-.landing-btn.ghost:hover {
+.landing-btn.ghost:hover,
+.landing-btn.ghost.native-haptic-link:hover {
   border-color: rgba(37, 211, 102, 0.5);
   color: #86efac;
 }
@@ -855,7 +896,8 @@ textarea:disabled {
   font-size: 0.86rem;
 }
 
-.landing-pro-footer a:hover {
+.landing-pro-footer a:hover,
+.landing-pro-footer .native-haptic-link:hover {
   color: #ffffff;
 }
 

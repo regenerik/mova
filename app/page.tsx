@@ -16,7 +16,7 @@ import {
   Zap
 } from "lucide-react";
 import Link from "next/link";
-import { LandingHaptics } from "@/components/LandingHaptics";
+import { NativeHapticLink } from "@/components/NativeHapticLink";
 
 const contactLabel = process.env.NEXT_PUBLIC_MOVA_CONTACT_LABEL || "Solicitar presupuesto";
 const contactWhatsapp = process.env.NEXT_PUBLIC_MOVA_CONTACT_WHATSAPP || "";
@@ -58,7 +58,6 @@ const benefits = [
 export default function LandingPage() {
   return (
     <main className="landing landing-pro">
-      <LandingHaptics />
       <header className="landing-topbar">
         <Link href="/" className="landing-brand" aria-label="MOVA">
           <Truck size={22} />
@@ -67,14 +66,14 @@ export default function LandingPage() {
         <nav className="landing-nav-links" aria-label="Navegacion principal">
           <a href="#servicios">Servicios</a>
           <a href="#beneficios">Beneficios</a>
-          <a href={contactHref} target="_blank" rel="noreferrer">Contacto</a>
-          <Link className="landing-admin-link" href="/admin/login" prefetch={false} aria-label="Acceso a consola">
+          <NativeHapticLink href={contactHref} target="_blank" label="Contactar por WhatsApp">Contacto</NativeHapticLink>
+          <NativeHapticLink className="landing-admin-link" href="/admin/login" label="Acceso a consola">
             <UserRound size={19} />
-          </Link>
+          </NativeHapticLink>
         </nav>
       </header>
 
-      <section className="landing-hero" data-haptic-section="hero">
+      <section className="landing-hero">
         <picture className="landing-hero-media">
           <source srcSet="/landing/truck-mobile.png" media="(max-width: 720px)" />
           <img src="/landing/truck-desktop.png" alt="Camion moderno en ruta argentina al amanecer" />
@@ -95,14 +94,14 @@ export default function LandingPage() {
               con velocidad, precision y control comercial claro.
             </p>
             <div className="landing-actions">
-              <a className="landing-btn primary" href={contactHref} target="_blank" rel="noreferrer">
+              <NativeHapticLink className="landing-btn primary" href={contactHref} target="_blank" label={contactLabel}>
                 {contactLabel}
                 <ArrowRight size={18} />
-              </a>
-              <a className="landing-btn ghost" href={contactHref} target="_blank" rel="noreferrer">
+              </NativeHapticLink>
+              <NativeHapticLink className="landing-btn ghost" href={contactHref} target="_blank" label="Hablar por WhatsApp">
                 <MessageCircle size={18} />
                 Hablar por WhatsApp
-              </a>
+              </NativeHapticLink>
             </div>
           </div>
 
@@ -133,7 +132,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section" id="servicios" data-haptic-section="servicios">
+      <section className="landing-section" id="servicios">
         <div className="landing-section-head">
           <span>Soluciones MOVA</span>
           <h2>Servicios Especializados</h2>
@@ -156,7 +155,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section compact" id="beneficios" data-haptic-section="beneficios">
+      <section className="landing-section compact" id="beneficios">
         <div className="landing-section-head">
           <span>Nuestros beneficios</span>
           <h2>Seriedad operativa sin perder contacto humano</h2>
@@ -175,7 +174,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="landing-pro-footer" id="contacto" data-haptic-section="contacto">
+      <footer className="landing-pro-footer" id="contacto">
         <div>
           <strong>MOVA</strong>
           <span>|</span>
@@ -184,13 +183,13 @@ export default function LandingPage() {
         <nav aria-label="Enlaces legales">
           <a href="#servicios">Servicios</a>
           <a href="#beneficios">Beneficios</a>
-          <Link href="/admin/login" prefetch={false}>Consola</Link>
+          <NativeHapticLink href="/admin/login" label="Acceso a consola">Consola</NativeHapticLink>
         </nav>
       </footer>
 
-      <a className="landing-whatsapp-fab" href={contactHref} target="_blank" rel="noreferrer" aria-label="Contactar por WhatsApp">
+      <NativeHapticLink className="landing-whatsapp-fab" href={contactHref} target="_blank" label="Contactar por WhatsApp">
         <MessageCircle size={25} />
-      </a>
+      </NativeHapticLink>
     </main>
   );
 }
