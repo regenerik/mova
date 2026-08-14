@@ -2,6 +2,7 @@ export type Currency = "ARS" | "USD";
 export type PartyConfirmationStatus = "pending" | "confirmed" | "cancelled";
 export type ResultStatus = "open" | "completed" | "cancelled";
 export type CancellationResponsibility = "client" | "transport" | "both";
+export type OperationalStatus = "on_track" | "delayed" | "early" | "accident" | "no_contact";
 export type CollectionSection =
   | "active"
   | "confirmed"
@@ -83,6 +84,7 @@ export interface Service extends BaseEntity {
   clientConfirmation: PartyConfirmationStatus;
   transportConfirmation: PartyConfirmationStatus;
   resultStatus: ResultStatus;
+  operationalStatus?: OperationalStatus | null;
   cancellationResponsibility?: CancellationResponsibility | null;
   chargeTiming: "before_pickup" | "at_pickup" | "at_delivery" | "after_delivery" | "custom";
   chargeStatus: "pending" | "received" | "partial";

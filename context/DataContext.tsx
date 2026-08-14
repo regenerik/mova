@@ -216,6 +216,7 @@ function serviceWithDefaults(service: Partial<Service>, now: string): Service {
     clientConfirmation: service.clientConfirmation || "pending",
     transportConfirmation: service.transportConfirmation || "pending",
     resultStatus: service.resultStatus || "open",
+    operationalStatus: service.operationalStatus || null,
     cancellationResponsibility: service.cancellationResponsibility || null,
     chargeTiming: service.chargeTiming || "after_delivery",
     chargeStatus: service.chargeStatus || "pending",

@@ -28,6 +28,9 @@ function movaValidateService(payload) {
   if (payload.startAt && payload.estimatedEndAt && new Date(payload.estimatedEndAt).getTime() <= new Date(payload.startAt).getTime()) {
     throw movaError("VALIDATION_ERROR", "La finalizacion estimada debe ser posterior al inicio.");
   }
+  if (payload.operationalStatus && ["on_track", "delayed", "early", "accident", "no_contact"].indexOf(payload.operationalStatus) === -1) {
+    throw movaError("VALIDATION_ERROR", "Estado operativo invalido.");
+  }
   ["distanceKm", "weightKg", "packageCount", "finalPriceArs", "finalPriceUsd"].forEach(function(field) {
     if (payload[field] !== null && payload[field] !== undefined && payload[field] !== "" && Number(payload[field]) < 0) {
       throw movaError("VALIDATION_ERROR", "El campo " + field + " no puede ser negativo.");
@@ -43,6 +46,7 @@ function movaServiceDefaults(payload) {
     clientConfirmation: "pending",
     transportConfirmation: "pending",
     resultStatus: "open",
+    operationalStatus: "",
     cancellationResponsibility: "",
     chargeTiming: "after_delivery",
     chargeStatus: "pending",

@@ -315,6 +315,11 @@ textarea:disabled {
   color: #fde68a;
 }
 
+.status-pill.muted {
+  border-color: rgba(245, 240, 229, 0.2);
+  color: var(--muted);
+}
+
 .status-pill.danger {
   border-color: rgba(251, 113, 133, 0.35);
   color: #fecdd3;
@@ -873,6 +878,30 @@ textarea:disabled {
   gap: 0.45rem;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.row-status-control {
+  width: min(12rem, 100%);
+}
+
+.row-status-control summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.row-status-control .select {
+  margin-top: 0.4rem;
+  min-height: 2.4rem;
+}
+
+.status-saving {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .progress-wrap {

@@ -22,7 +22,7 @@ import {
   transportStats,
   whatsappLink
 } from "@/lib/domain";
-import type { AIServiceDraft, CancellationResponsibility, Client, CollectionSection, Currency, Payment, Service, ServiceNote, Transport } from "@/types";
+import type { AIServiceDraft, CancellationResponsibility, Client, CollectionSection, Currency, OperationalStatus, Payment, Service, ServiceNote, Transport } from "@/types";
 import {
   ArrowLeft,
   ArrowRight,
@@ -85,8 +85,16 @@ const phoneCountries = [
 
 type PhoneCountry = (typeof phoneCountries)[number];
 
+const operationalStatusOptions: Array<{ value: OperationalStatus; label: string; tone: "ok" | "warn" | "danger" | "muted" }> = [
+  { value: "on_track", label: "En regla", tone: "ok" },
+  { value: "delayed", label: "Demorado", tone: "warn" },
+  { value: "early", label: "Adelantado", tone: "ok" },
+  { value: "accident", label: "Accidentado", tone: "danger" },
+  { value: "no_contact", label: "Sin contacto", tone: "warn" }
+];
+
 export function ServicesView({ section }: { section: CollectionSection }) {
-  const { data, loading, refresh } = useData();
+  const { data, loading, refresh, saveService } = useData();
   const [query, setQuery] = useState("");
   const [now, setNow] = useState(new Date());
 
@@ -143,6 +151,7 @@ export function ServicesView({ section }: { section: CollectionSection }) {
             client={data.clients.find((item) => item.id === service.clientId)}
             transport={data.transports.find((item) => item.id === service.transportId)}
             now={now}
+            onStatusChange={(operationalStatus) => saveService({ ...service, operationalStatus })}
           />
         ))}
         {!services.length ? <div className="empty">No hay servicios en esta seccion.</div> : null}
@@ -151,14 +160,27 @@ export function ServicesView({ section }: { section: CollectionSection }) {
   );
 }
 
-function ServiceRow({ service, client, transport, now }: { service: Service; client?: Client; transport?: Transport; now: Date }) {
+function ServiceRow({ service, client, transport, now, onStatusChange }: { service: Service; client?: Client; transport?: Transport; now: Date; onStatusChange?: (status: OperationalStatus) => Promise<Service> }) {
   const progress = serviceProgress(service, now);
+  const status = visibleOperationalStatus(service, now);
+  const statusMeta = operationalStatusMeta(status);
+  const [savingStatus, setSavingStatus] = useState(false);
+
+  async function changeStatus(nextStatus: OperationalStatus) {
+    setSavingStatus(true);
+    try {
+      await onStatusChange?.(nextStatus);
+    } finally {
+      setSavingStatus(false);
+    }
+  }
+
   return (
     <article className="card service-row">
       <div>
         <div className="row-title">
           <h2>{service.title}</h2>
-          {isServiceOverdue(service, now) ? <span className="status-pill warn">Demorado</span> : null}
+          {status !== "on_track" ? <span className={`status-pill ${statusMeta.tone}`}>{statusMeta.label}</span> : null}
         </div>
         <p>
           {client?.name || "Cliente sin asignar"} · {transport?.name || "Transporte sin asignar"}
@@ -170,6 +192,15 @@ function ServiceRow({ service, client, transport, now }: { service: Service; cli
       <div className="row-times">
         <span>{formatDate(service.startAt)}</span>
         <span>{formatDate(service.estimatedEndAt)}</span>
+        {onStatusChange ? (
+          <details className="row-status-control">
+            <summary>Estado</summary>
+            <select className="select" value={status} onChange={(event) => changeStatus(event.target.value as OperationalStatus)} disabled={savingStatus}>
+              {operationalStatusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+            {savingStatus ? <span className="status-saving"><span className="spinner subtle" aria-hidden="true" /> Guardando</span> : null}
+          </details>
+        ) : null}
       </div>
       <div className="progress-wrap">
         <div className="truck-progress">
@@ -1416,6 +1447,15 @@ function serviceEditHref(id: string): string {
 
 function entityDetailHref(kind: "client" | "transport", id: string): string {
   return `/admin?view=${kind}&id=${encodeURIComponent(id)}`;
+}
+
+function visibleOperationalStatus(service: Service, now: Date): OperationalStatus {
+  if (service.operationalStatus) return service.operationalStatus;
+  return isServiceOverdue(service, now) ? "delayed" : "on_track";
+}
+
+function operationalStatusMeta(status: OperationalStatus) {
+  return operationalStatusOptions.find((option) => option.value === status) || operationalStatusOptions[0];
 }
 
 function formatAmountInput(value: unknown): string {

@@ -12,7 +12,7 @@ const MOVA_SHEETS = {
     "id", "title", "clientId", "transportId", "contractDate", "startAt", "estimatedEndAt", "origin",
     "destination", "originNotes", "destinationNotes", "distanceKm", "cargoDescription", "weightKg",
     "packageCount", "finalPriceArs", "finalPriceUsd", "commissionPercent", "commissionCurrencies",
-    "clientConfirmation", "transportConfirmation", "resultStatus", "cancellationResponsibility", "chargeTiming", "chargeStatus",
+    "clientConfirmation", "transportConfirmation", "resultStatus", "operationalStatus", "cancellationResponsibility", "chargeTiming", "chargeStatus",
     "customChargeNote", "clientInstructions", "transportInstructions", "internalNotes", "hidden",
     "createdAt", "updatedAt"
   ],
@@ -42,7 +42,7 @@ const MOVA_STRING_FIELDS = {
   Services: [
     "title", "clientId", "transportId", "contractDate", "startAt", "estimatedEndAt", "origin", "destination",
     "originNotes", "destinationNotes", "cargoDescription", "clientConfirmation", "transportConfirmation",
-    "resultStatus", "cancellationResponsibility", "chargeTiming", "chargeStatus", "customChargeNote", "clientInstructions", "transportInstructions",
+    "resultStatus", "operationalStatus", "cancellationResponsibility", "chargeTiming", "chargeStatus", "customChargeNote", "clientInstructions", "transportInstructions",
     "internalNotes"
   ],
   Payments: ["serviceId", "currency", "paidAt", "note"],
