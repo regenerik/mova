@@ -16,6 +16,7 @@ import {
   Zap
 } from "lucide-react";
 import Link from "next/link";
+import { LandingHaptics } from "@/components/LandingHaptics";
 
 const contactLabel = process.env.NEXT_PUBLIC_MOVA_CONTACT_LABEL || "Solicitar presupuesto";
 const contactWhatsapp = process.env.NEXT_PUBLIC_MOVA_CONTACT_WHATSAPP || "";
@@ -57,6 +58,7 @@ const benefits = [
 export default function LandingPage() {
   return (
     <main className="landing landing-pro">
+      <LandingHaptics />
       <header className="landing-topbar">
         <Link href="/" className="landing-brand" aria-label="MOVA">
           <Truck size={22} />
@@ -66,13 +68,13 @@ export default function LandingPage() {
           <a href="#servicios">Servicios</a>
           <a href="#beneficios">Beneficios</a>
           <a href={contactHref} target="_blank" rel="noreferrer">Contacto</a>
-          <Link className="landing-admin-link" href="/admin/login" aria-label="Acceso a consola">
+          <Link className="landing-admin-link" href="/admin/login" prefetch={false} aria-label="Acceso a consola">
             <UserRound size={19} />
           </Link>
         </nav>
       </header>
 
-      <section className="landing-hero">
+      <section className="landing-hero" data-haptic-section="hero">
         <picture className="landing-hero-media">
           <source srcSet="/landing/truck-mobile.png" media="(max-width: 720px)" />
           <img src="/landing/truck-desktop.png" alt="Camion moderno en ruta argentina al amanecer" />
@@ -131,7 +133,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section" id="servicios">
+      <section className="landing-section" id="servicios" data-haptic-section="servicios">
         <div className="landing-section-head">
           <span>Soluciones MOVA</span>
           <h2>Servicios Especializados</h2>
@@ -154,7 +156,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section compact" id="beneficios">
+      <section className="landing-section compact" id="beneficios" data-haptic-section="beneficios">
         <div className="landing-section-head">
           <span>Nuestros beneficios</span>
           <h2>Seriedad operativa sin perder contacto humano</h2>
@@ -173,7 +175,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="landing-pro-footer" id="contacto">
+      <footer className="landing-pro-footer" id="contacto" data-haptic-section="contacto">
         <div>
           <strong>MOVA</strong>
           <span>|</span>
@@ -182,7 +184,7 @@ export default function LandingPage() {
         <nav aria-label="Enlaces legales">
           <a href="#servicios">Servicios</a>
           <a href="#beneficios">Beneficios</a>
-          <Link href="/admin/login">Consola</Link>
+          <Link href="/admin/login" prefetch={false}>Consola</Link>
         </nav>
       </footer>
 
