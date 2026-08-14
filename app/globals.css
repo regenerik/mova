@@ -235,6 +235,12 @@ textarea:disabled {
   background: linear-gradient(135deg, rgba(215, 244, 106, 0.3), rgba(242, 184, 75, 0.22));
 }
 
+.header-save-btn.saved {
+  border-color: rgba(79, 222, 128, 0.74);
+  background: rgba(79, 222, 128, 0.18);
+  color: #8dffad;
+}
+
 .detail-title,
 .detail-title-actions {
   display: flex;

@@ -403,6 +403,7 @@ export function ServiceFormView({ serviceId }: { serviceId?: string } = {}) {
   const [transportModal, setTransportModal] = useState(false);
   const [form, setForm] = useState<Partial<Service>>({ commissionPercent: 10, commissionCurrencies: ["ARS"], clientConfirmation: "pending", transportConfirmation: "pending", resultStatus: "open", chargeTiming: "after_delivery", chargeStatus: "pending" });
   const [saving, setSaving] = useState(false);
+  const [savedPulse, setSavedPulse] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [createdService, setCreatedService] = useState<Service | null>(null);
 
@@ -416,7 +417,14 @@ export function ServiceFormView({ serviceId }: { serviceId?: string } = {}) {
         window.localStorage.removeItem("mova-ai-draft-v1");
       }
     }
-  }, [editing]);
+    setSavedPulse(false);
+  }, [editing?.id]);
+
+  useEffect(() => {
+    if (!savedPulse) return;
+    const timer = window.setTimeout(() => setSavedPulse(false), 3000);
+    return () => window.clearTimeout(timer);
+  }, [savedPulse]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -424,7 +432,10 @@ export function ServiceFormView({ serviceId }: { serviceId?: string } = {}) {
     setSaveError(null);
     try {
       const saved = await saveService(form);
-      if (editing) router.push(serviceDetailHref(saved.id));
+      if (editing) {
+        setForm(saved);
+        setSavedPulse(true);
+      }
       else setCreatedService(saved);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "No se pudo guardar el servicio.");
@@ -475,8 +486,8 @@ export function ServiceFormView({ serviceId }: { serviceId?: string } = {}) {
           <button className="btn icon-btn header-back-btn" type="button" onClick={() => router.back()} aria-label="Volver">
             <ArrowLeft size={18} />
           </button>
-          <button className="btn icon-btn header-save-btn" type="submit" form="service-form" disabled={saving} aria-label="Guardar servicio">
-            {saving ? <span className="spinner subtle" aria-hidden="true" /> : <Save size={19} />}
+          <button className={`btn icon-btn header-save-btn ${savedPulse ? "saved" : ""}`} type="submit" form="service-form" disabled={saving} aria-label="Guardar servicio">
+            {saving ? <span className="spinner subtle" aria-hidden="true" /> : savedPulse ? <Check size={20} /> : <Save size={19} />}
           </button>
           <div>
             <h1>{editing ? "Editar servicio" : "Nuevo servicio"}</h1>
